@@ -1,0 +1,83 @@
+2024-01-11 19:05:59.381681: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-01-11 19:06:03.379958: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+Loading model from:  ./small_log/best_model.pth
+*****************Model Parameter*****************
+transformer.wte.weight torch.Size([71, 384]) True
+transformer.wpe.weight torch.Size([1024, 384]) True
+transformer.h.0.ln_1.weight torch.Size([384]) True
+transformer.h.0.ln_1.bias torch.Size([384]) True
+transformer.h.0.attn.c_attn.weight torch.Size([384, 1152]) True
+transformer.h.0.attn.c_attn.bias torch.Size([1152]) True
+transformer.h.0.attn.c_proj.weight torch.Size([384, 384]) True
+transformer.h.0.attn.c_proj.bias torch.Size([384]) True
+transformer.h.0.ln_2.weight torch.Size([384]) True
+transformer.h.0.ln_2.bias torch.Size([384]) True
+transformer.h.0.mlp.c_fc.weight torch.Size([384, 1536]) True
+transformer.h.0.mlp.c_fc.bias torch.Size([1536]) True
+transformer.h.0.mlp.c_proj.weight torch.Size([1536, 384]) True
+transformer.h.0.mlp.c_proj.bias torch.Size([384]) True
+transformer.h.1.ln_1.weight torch.Size([384]) True
+transformer.h.1.ln_1.bias torch.Size([384]) True
+transformer.h.1.attn.c_attn.weight torch.Size([384, 1152]) True
+transformer.h.1.attn.c_attn.bias torch.Size([1152]) True
+transformer.h.1.attn.c_proj.weight torch.Size([384, 384]) True
+transformer.h.1.attn.c_proj.bias torch.Size([384]) True
+transformer.h.1.ln_2.weight torch.Size([384]) True
+transformer.h.1.ln_2.bias torch.Size([384]) True
+transformer.h.1.mlp.c_fc.weight torch.Size([384, 1536]) True
+transformer.h.1.mlp.c_fc.bias torch.Size([1536]) True
+transformer.h.1.mlp.c_proj.weight torch.Size([1536, 384]) True
+transformer.h.1.mlp.c_proj.bias torch.Size([384]) True
+transformer.h.2.ln_1.weight torch.Size([384]) True
+transformer.h.2.ln_1.bias torch.Size([384]) True
+transformer.h.2.attn.c_attn.weight torch.Size([384, 1152]) True
+transformer.h.2.attn.c_attn.bias torch.Size([1152]) True
+transformer.h.2.attn.c_proj.weight torch.Size([384, 384]) True
+transformer.h.2.attn.c_proj.bias torch.Size([384]) True
+transformer.h.2.ln_2.weight torch.Size([384]) True
+transformer.h.2.ln_2.bias torch.Size([384]) True
+transformer.h.2.mlp.c_fc.weight torch.Size([384, 1536]) True
+transformer.h.2.mlp.c_fc.bias torch.Size([1536]) True
+transformer.h.2.mlp.c_proj.weight torch.Size([1536, 384]) True
+transformer.h.2.mlp.c_proj.bias torch.Size([384]) True
+transformer.h.3.ln_1.weight torch.Size([384]) True
+transformer.h.3.ln_1.bias torch.Size([384]) True
+transformer.h.3.attn.c_attn.weight torch.Size([384, 1152]) True
+transformer.h.3.attn.c_attn.bias torch.Size([1152]) True
+transformer.h.3.attn.c_proj.weight torch.Size([384, 384]) True
+transformer.h.3.attn.c_proj.bias torch.Size([384]) True
+transformer.h.3.ln_2.weight torch.Size([384]) True
+transformer.h.3.ln_2.bias torch.Size([384]) True
+transformer.h.3.mlp.c_fc.weight torch.Size([384, 1536]) True
+transformer.h.3.mlp.c_fc.bias torch.Size([1536]) True
+transformer.h.3.mlp.c_proj.weight torch.Size([1536, 384]) True
+transformer.h.3.mlp.c_proj.bias torch.Size([384]) True
+transformer.ln_f.weight torch.Size([384]) True
+transformer.ln_f.bias torch.Size([384]) True
+prop_in_linear.weight torch.Size([384, 4]) True
+prop_in_linear.bias torch.Size([384]) True
+prop_out_linear.weight torch.Size([4, 384]) True
+prop_out_linear.bias torch.Size([4]) True
+lm_head.weight torch.Size([71, 384]) True
+Total params num: 7549828
+*****************Finish Parameter****************
+0it [00:00, ?it/s]52197it [00:00, 521869.71it/s]100001it [00:00, 190097.09it/s]
+processing /home/data/wd/correct_norm_reaction.txt
+0it [00:00, ?it/s]27472it [00:00, 274591.29it/s]54932it [00:00, 267941.69it/s]81738it [00:00, 265418.59it/s]109877it [00:00, 121477.44it/s]163233it [00:00, 203545.48it/s]217620it [00:00, 278920.90it/s]256712it [00:01, 167475.46it/s]309403it [00:01, 224360.42it/s]346075it [00:01, 249469.04it/s]382469it [00:01, 254043.56it/s]429503it [00:01, 300813.05it/s]467072it [00:02, 165379.19it/s]521212it [00:02, 221402.13it/s]572423it [00:02, 272415.45it/s]625275it [00:02, 323747.39it/s]669680it [00:03, 185541.69it/s]706426it [00:03, 211750.17it/s]745663it [00:03, 242575.95it/s]792628it [00:03, 287087.93it/s]831928it [00:03, 299363.85it/s]869545it [00:03, 297953.58it/s]924158it [00:03, 356806.35it/s]965153it [00:04, 170775.94it/s]1018921it [00:04, 223210.68it/s]1073729it [00:04, 278290.44it/s]1126239it [00:04, 326411.20it/s]1182549it [00:04, 377972.00it/s]1238275it [00:04, 420519.46it/s]1289238it [00:04, 436252.74it/s]1339311it [00:05, 192466.83it/s]1392876it [00:05, 239631.08it/s]1443763it [00:05, 283812.10it/s]1493163it [00:05, 321763.41it/s]1538939it [00:05, 343567.00it/s]1583500it [00:06, 328426.93it/s]1630195it [00:06, 359811.94it/s]1672227it [00:06, 337144.85it/s]1723782it [00:06, 379813.79it/s]1765912it [00:07, 124596.86it/s]1810762it [00:07, 156814.24it/s]1844684it [00:07, 174269.13it/s]1878189it [00:07, 198479.30it/s]1911013it [00:07, 218981.43it/s]1942879it [00:07, 235627.97it/s]1983997it [00:08, 274224.52it/s]2037163it [00:08, 335755.05it/s]2090702it [00:08, 386554.25it/s]2147064it [00:08, 433749.73it/s]2201435it [00:08, 464073.55it/s]2258929it [00:08, 494870.46it/s]2310898it [00:09, 132135.95it/s]2348728it [00:09, 155222.95it/s]2385906it [00:09, 179365.94it/s]2441190it [00:09, 234091.17it/s]2495699it [00:10, 287922.11it/s]2552527it [00:10, 343500.81it/s]2602743it [00:10, 378512.97it/s]2652122it [00:10, 372261.74it/s]2700309it [00:10, 398439.47it/s]2746476it [00:10, 390084.90it/s]2791652it [00:10, 405797.87it/s]2847209it [00:10, 445765.86it/s]2900056it [00:10, 468586.72it/s]2955823it [00:10, 493771.31it/s]3006892it [00:12, 113885.26it/s]3064051it [00:12, 153168.66it/s]3116483it [00:12, 193704.45it/s]3169662it [00:12, 239333.43it/s]3225640it [00:12, 291128.95it/s]3278002it [00:12, 334739.92it/s]3329003it [00:12, 338966.08it/s]3376505it [00:13, 362948.34it/s]3422175it [00:13, 375493.13it/s]3469620it [00:13, 393203.16it/s]3518433it [00:13, 417522.69it/s]3572564it [00:13, 450683.15it/s]3620796it [00:13, 420811.50it/s]3680022it [00:13, 466392.39it/s]3729029it [00:13, 470428.29it/s]3787595it [00:13, 502818.51it/s]3839275it [00:15, 113516.00it/s]3892820it [00:15, 148881.99it/s]3950643it [00:15, 194858.86it/s]4000709it [00:15, 235431.75it/s]4055363it [00:15, 284984.70it/s]4114293it [00:15, 341405.15it/s]4171861it [00:15, 390457.60it/s]4228266it [00:15, 430422.93it/s]4287316it [00:15, 470037.84it/s]4344629it [00:16, 496954.98it/s]4401340it [00:16, 515993.71it/s]4461296it [00:16, 539335.60it/s]4518837it [00:16, 535017.67it/s]4576655it [00:16, 547273.06it/s]4634687it [00:16, 556795.04it/s]4692613it [00:16, 563342.60it/s]4751350it [00:16, 570403.36it/s]4809066it [00:16, 570699.05it/s]4866609it [00:16, 568644.74it/s]4883729it [00:17, 287125.41it/s]
+processing /home/data/wd/correct_norm_retro_no_ca.txt
+0it [00:00, ?it/s]2350it [00:01, 1827.02it/s]53051it [00:01, 52326.03it/s]108301it [00:01, 114825.11it/s]163974it [00:01, 181758.66it/s]220732it [00:01, 250390.32it/s]271299it [00:01, 297668.45it/s]326791it [00:01, 354748.13it/s]383736it [00:01, 406422.33it/s]441698it [00:02, 450731.26it/s]500415it [00:02, 487246.49it/s]556322it [00:02, 502372.29it/s]614274it [00:02, 524022.29it/s]672036it [00:02, 539377.59it/s]730729it [00:02, 553184.32it/s]790906it [00:02, 567347.85it/s]849027it [00:02, 570325.16it/s]907770it [00:02, 575372.78it/s]965996it [00:02, 575332.13it/s]1026091it [00:03, 582940.87it/s]1087597it [00:03, 592505.19it/s]1147096it [00:03, 591343.62it/s]1206404it [00:03, 513726.07it/s]1266720it [00:03, 537871.54it/s]1326552it [00:03, 554690.77it/s]1383283it [00:05, 96038.53it/s] 1434559it [00:05, 122497.86it/s]1477043it [00:05, 147239.77it/s]1524529it [00:05, 180235.65it/s]1566419it [00:05, 205104.66it/s]1623257it [00:05, 261141.19it/s]1681717it [00:06, 319546.65it/s]1736722it [00:06, 366796.13it/s]1795227it [00:06, 416238.30it/s]1801113it [00:06, 285615.66it/s]
+2024-01-11 19:07: Experiment log path in: ./small_log
+100001 4883729 1801113
+10000 4883729 1801113
+-------------- showing examples --------------------------------
+molecules:
+[3.791820000000002, 54.35, 0.6834372443954903, 3.170142911622598] O=C(N/N=C/c1cscn1)c1cc2c(s1)CCCC2.CC[C@H]1CCc2sc(C(=O)N/N=C/c3csc(C)n3)cc2C1!
+reactions:
+[1.45928, 157.45, 0.5691895676039367, 2.5280768445981483] CCCCOC(=O)c1nc(C#N)c2ccc(S(=O)(=O)c3ccccc3)cc2c1O.NCC(=O)O>>O=C(c1nc(C#N)c2ccc(S(=O)(=O)c3ccccc3)cc2c1O)NCC(=O)O!
+retro:
+[4.994900000000005, 60.440000000000005, 0.4500855369554003, 4.574026652089674] CC(=O)OC(C)=O.F[C@H]1[C@H]2[C@@H]3CCC(=O)C=C3C[C@@H](CCCCCO)[C@@H]2[C@H]2CCC(=O)[C@@]2(C)C1<<F[C@H]1[C@H]2[C@@H]3CCC(=O)C=C3C[C@@H](CCCCCOC(C)=O)[C@@H]2[C@H]2CCC(=O)[C@@]2(C)C1!
+----------------------------------------------------------------
+2024-01-11 19:07: Train Epoch 1: 0/188293 Loss: 22.613409
+2024-01-11 20:14: Train Epoch 1: 10000/188293 Loss: 2.934630
+2024-01-11 21:15: Train Epoch 1: 20000/188293 Loss: 2.157706
