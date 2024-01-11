@@ -16,9 +16,7 @@ Update to generate on a file without decoding
 4. More SMILES in file
 
 
-Example:
 
-Tensor 'seqs' after dataloader:
 
 # seqs:
       '''
