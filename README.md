@@ -9,6 +9,11 @@ Update to generate on a file without decoding
 
 4.Debug the data pipeline for generation.
 
+# to do 
+1. Decode of the generated seqs.
+2. Add end_token '!' to generated seqs.
+3. Parameters in generation_configs are to be set reasonable.
+
 
 Example:
 
