@@ -13,6 +13,7 @@ Update to generate on a file without decoding
 1. Decode of the generated seqs.
 2. Add end_token '!' to generated seqs.
 3. Parameters in generation_configs are to be set reasonable.
+4. More SMILES in file
 
 
 Example:
@@ -50,7 +51,7 @@ Tensor 'seqs' after dataloader:
 
     # ids=68 / 1 结果一样
 
-# 过程
+# BUGS 
       # （1）（已解决，问题（3）调教好了就可以直接放在cuda上了,n_positions测试到1024无报错）generate好像对n_positions很敏感，太大会报错
       # 在cuda上报错为RuntimeError: CUDA error: device-side assert triggered
       # 要在cpu上运行才能看到原始报错：IndexError: index out of range in self
