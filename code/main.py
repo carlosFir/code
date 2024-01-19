@@ -6,6 +6,8 @@ from util.TrainInits import init_seed, print_model_parameters
 import configparser
 from torch import nn 
 import os
+from util.gene_tools import DrawPlot
+
 
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 init_seed(114514)
@@ -24,15 +26,16 @@ config['data']['vocab_size'] = str(tokenizer.get_vocab_size())
 # model 
 from_exist = bool(eval(config['train']['from_exist']))
 if from_exist:
-    print("Loading model from: ", os.path.join(config['train']['log_dir'], 'best_model.pth'))
-    model = torch.load(os.path.join(config['train']['log_dir'], 'best_model.pth'))
+    exist_model = str(config['train']['exist_model'])
+    print("Loading model from: ", os.path.join(config['train']['log_dir'], exist_model))
+    model = torch.load(os.path.join(config['train']['log_dir'], exist_model))
 else:
     model = generate_model(config)
 model = model.to(device)
 print_model_parameters(model, only_num=False)
 
 # train or generate
-generate = bool(eval(config['train']['generate']))
+generate = bool(eval(config['generate']['generation']))
 
 if not generate:
     # dataset
@@ -45,12 +48,12 @@ if not generate:
                                                             int(config['train']['batch_size']), 
                                                             tokenizer,
                                                             int(config['model']['n_positions'])-1)
-
-    for p in model.parameters():
-        if p.dim() > 1:
-            nn.init.xavier_uniform_(p)
-        # else:
-        #     nn.init.uniform_(p)
+    if not from_exist:
+        for p in model.parameters():
+            if p.dim() > 1:
+                nn.init.xavier_uniform_(p)
+            # else:
+            #     nn.init.uniform_(p)
     optimizer = torch.optim.Adam(params=model.parameters(), 
                                 lr=float(config['train']['lr_init']), 
                                 eps=1.0e-8,
@@ -64,7 +67,7 @@ else:
    
     model.eval()
     generation_configs = {
-        'beam_size': 1,
+        'beam_size': 2,
         'max_gen_len': 5,
         'end_ids': 1, # 1能正常生成，但不知道效果如何；目前还没看generate中这个ids的作用
         'pad_ids': 1,
@@ -75,47 +78,23 @@ else:
         'top_p': 0.8,
         'early_stop': True
     }
-    # seqs:
-    '''
-    截断end token后：
-    tensor([26, 49, 58, 39, 58, 23,  8, 23, 32, 23,  9, 23, 23, 23, 23, 23,  8,  9,
-        59, 51, 23,  8, 23, 23, 23, 23, 23,  8, 35, 58, 58, 39, 58, 59, 39, 58,
-        59, 23,  8, 23, 23, 23,  9, 32, 23, 23, 39, 58, 58, 39, 49, 26, 59, 51,
-        23, 14, 23, 23, 23, 23, 23, 14,  7, 59, 23,  9, 23], device='cuda:6')
-    截断end token前：
-    tensor([[26, 49, 58,  ..., 68, 68, 68]], device='cuda:6')
-    '''
-
-    # end_ids=68, pad_ids=68 在n_positions=1024时，结果：
-    '''
-    tensor([[[23, 23, 58, 39, 39, 59, 58, 59, 23, 23, 23, 23, 23, 39, 58, 23, 23,
-          23, 59, 23, 58, 39, 23, 58, 39, 39, 23, 59, 39, 23, 23, 23, 23, 23,
-          39, 39, 58, 23, 23, 23, 58, 59, 23, 23, 39,  8, 58, 39, 59, 23, 23,
-          58, 23, 23, 39, 58, 23, 23, 23,  8, 39,  8, 23, 23,  8, 39, 39, 59,
-          23, 59, 23, 59, 39, 58]]], device='cuda:6')
-    '''
-
-    # end_ids=1, pad_ids=1 在n_positions=1024时，结果：
-    '''
-    tensor([[[23, 23, 58, 39, 39, 59, 58, 59, 23, 23, 23, 23, 23, 39, 58, 23, 23,
-          23, 59, 23, 58, 39, 23, 58, 39, 39, 23, 59, 39, 23, 23, 23, 23, 23,
-          39, 39, 58, 23, 23, 23, 58, 59, 23, 23, 39,  8, 58, 39, 59, 23, 23,
-          58, 23, 23, 39, 58, 23, 23, 23,  8, 39,  8, 23, 23,  8, 39, 39, 59,
-          23, 59, 23, 59, 39, 58]]], device='cuda:6')
-    '''
-
-    # ids=68 / 1 结果一样
-
+   
     generate_files = config['data']['generate_files'].split(',')
-    
+    scaffold = bool(eval(config['generate']['on_scaffold']))
+    print("Generate on Scaffold: ", scaffold)
+
     # in dataloader.py, class ChemGenerateDataRaw is created for data preprocess in generation
+    # ChemDataRaw中输出的example是'scaffold.smiles!'，返回的是smiles
     generate_data = ChemGenerateDataRaw(generate_files)
     
     # print(generate_data.generate_data)
 
     # in dataloader.py, def get_generate_data_loader is created for data loader in generation
+    # 这里dataloader中ChemDataSetPostProcess引入了scaffold的表示
+    # scaffold表示要考虑分子没有骨架的问题
     generate_loader = get_generate_data_loader(generate_data,
-                                                int(config['train']['batch_size']),
+                                                scaffold,
+                                                int(config['generate']['batch_size']),
                                                 tokenizer,
                                                 int(config['model']['n_positions'])-1)
     # print(generate_loader)
@@ -131,7 +110,7 @@ else:
         for i in range(seqs.size(1)):
             # print(seqs[0, i])
             if seqs[0, i] != 68 and seqs[0, i+1] == 68:
-                x = seqs[0, :i] # 删除end token
+                x = seqs[0, :i+1] # 删除end token
                 break
 
         # Print the value of x
@@ -139,43 +118,44 @@ else:
         if x != None:
             seqs = x.unsqueeze(0) # 删除end token
         
-        labels = [seqs, props]
-        data = [props, seqs] # 已删除end token，直接一步到位取seqs的全部
-        print("props: ", props.shape)
-        print("seqs: ", seqs.shape)
+        print("seqs length: ", seqs.size(1))
+        seqs_in = seqs[:, :(seqs.size(1) >> 1)]
+        print(seqs_in.shape)
+        len_in = seqs.size(1) >> 1
+        print(len_in)
+        half_generate = seqs.size(1) - len_in - 1# 待生成长度，取一半，奇数向上
+        generation_configs['max_gen_len'] = half_generate # n means n + 1
+        # out length = len_in + generation_configs['max_gen_len'] + 1
+        generation_configs['beam_size'] = 2
+
+        data = [props, seqs_in]
         
         print("#################Generating###############")
-        # （1）（已解决，问题（3）调教好了就可以直接放在cuda上了,n_positions测试到1024无报错）generate好像对n_positions很敏感，太大会报错
-        # 在cuda上报错为RuntimeError: CUDA error: device-side assert triggered
-        # 要在cpu上运行才能看到原始报错：IndexError: index out of range in self
-        # 发现报错出现在对input_ids的传递中，print输出，发现了问题（3）
-        # 问题（3）来源于token加入了end token
-        # 问题（1）在gpt2.py的测试中，将seqs初始化为(2, 10) (2, 128)无报错
-        # (2, 1024)报错相同
-        # (2 ,512)正在测试，打印每一步结果
-
-        # （2）（无所谓了，因为就算被截断了，查找不到end会使用原seqs）另外设置为较小值发现被截断的seq没有end token
-        # 例如 n_positions=10
-        # print(seqs[0]) = tensor([26, 49, 58, 39, 58, 23,  8, 23, 32, 23], device='cuda:6')
-        # 截断的末尾应该也是!即68，不知道是否有影响，但1024够得够了，不会出现截断
-
-        # （3）（已解决，在生成前规范化一下）另外，经过MyTokenizer的序列的末尾必定是68填充
-        # generate中对初始input_ids也就是外部的data[1]即seqs的做法是取-1元素
-        # 意味着input_ids一开始就是68的结尾符号，导致后面一直生成重复的68
-        # 但为什么报错就不知道了
-        # 需要重新设计token，不能加end token
-
-        # 查看序列长度padding到n_positions是哪一步生成的
-        # 查看一般小n_positions值的是否报错，报错是否相同
-        # 查看极小n_positions值报错情况
-
-        # （4）decoder
-        # （5）生成的序列没有end token
-
+        out = model.generate(data, generation_configs=generation_configs)
+        print(out.shape)
        
-        print(model.generate(data, generation_configs=generation_configs))
+        
+        out = out[:, :, 1:].squeeze(0) # 删去首位相接的重复token1个, remains = 20
+        out_concat = torch.empty(generation_configs['beam_size'], len_in + generation_configs['max_gen_len'] + 1, dtype=torch.long)
+        for i, seq in enumerate(out):
+            s = torch.concat((seqs_in, seq.unsqueeze(0)), dim=1)
+            out_concat[i] = s
+            
+        
+        print("#####################Contrast####################")
+        print('Seqs_all: ', seqs.shape, seqs)
+        print('Generated: ', out_concat.shape, out_concat)
+        '''print('Seqs_input: ', seqs_in.shape, seqs_in)
+        print('Seqs_output: ', out.shape, out)'''
 
-        break
+        print("################Decoding###############")
+        for i, out in enumerate(out_concat):
+            print(tokenizer.decode(out.tolist()))
+        smiles_original = tokenizer.decode(seqs[0].tolist())
+        print(smiles_original)
+        # DrawPlot(out_concat, seqs)
+        
+        
 
 
    
