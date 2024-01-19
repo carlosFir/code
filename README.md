@@ -1,5 +1,4 @@
 # code
-Update to generate on a file without decoding
 
 1.Update dataloader.py, add data preprocessing for generation.
 
