@@ -6,7 +6,8 @@ from util.TrainInits import init_seed, print_model_parameters
 import configparser
 from torch import nn 
 import os
-from util.gene_tools import DrawPlot
+from util.gene_tools import DrawPlot, CheckValid
+
 
 
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
@@ -17,29 +18,57 @@ init_seed(114514)
 config = configparser.ConfigParser()
 config.read("config-small.conf")
 device = config['model']['device']
-
+print(device)
 # tokenizer
 vocab_file = config['data']['vocab_file']
 tokenizer = MyTokenizer(vocab_file)
 config['data']['vocab_size'] = str(tokenizer.get_vocab_size())
+# train or generate
+generate = bool(eval(config['generate']['generation']))
 
 # model 
 from_exist = bool(eval(config['train']['from_exist']))
+
 if from_exist:
-    exist_model = str(config['train']['exist_model'])
+    # exist_model = str(config['train']['exist_model'])
+    if generate:
+        exist_model = str(config['generate']['generate_model'])
+    else:
+        exist_model = str(config['train']['exist_model'])
     print("Loading model from: ", os.path.join(config['train']['log_dir'], exist_model))
     model = torch.load(os.path.join(config['train']['log_dir'], exist_model))
 else:
     model = generate_model(config)
-model = model.to(device)
-print_model_parameters(model, only_num=False)
 
-# train or generate
-generate = bool(eval(config['generate']['generation']))
+model = model.to(device)
+# print_model_parameters(model, only_num=False)
+total_num = sum([param.nelement() for param in model.parameters()])
+print('Total params num: {}'.format(total_num))
+
+
 
 if not generate:
-    # dataset
     
+    # parameters record
+    print("--------------------model parameters: --------------------")
+    print("n_positions: ", config['model']['n_positions'])
+    print("n_embd: ", config['model']['n_embd'])
+    print("n_layer: ", config['model']['n_layer'])
+    print("n_head: ", config['model']['n_head'])
+    print("device: ", config['model']['device'])
+
+    print("--------------------train parameters: --------------------")
+    print("learning_rate: ", config['train']['lr_init'])
+    print("weight_decay_rate: ", config['train']['weight_decay_rate'])
+    print("batch_size: ", config['train']['batch_size'])
+    print("log_step: ", config['train']['log_step'])
+    print("log_dir: ", config['train']['log_dir'])
+    print("from_exist: ", config['train']['from_exist'])
+    if config['train']['from_exist']:
+        print("exist_model: ", config['train']['exist_model'])
+    print("save_name: ", config['train']['save_name'])
+          
+    # dataset 
     mol_files = config['data']['mol_files'].split(',')
     react_files = config['data']['react_files'].split(',')
     retro_files = config['data']['retro_files'].split(',')
@@ -64,21 +93,7 @@ if not generate:
    
     trainer.train()
 else:
-   
     model.eval()
-    generation_configs = {
-        'beam_size': 2,
-        'max_gen_len': 5,
-        'end_ids': 1, # 1能正常生成，但不知道效果如何；目前还没看generate中这个ids的作用
-        'pad_ids': 1,
-        'no_repeat_ngram_size': 0,
-        'do_sample': True,
-        'temperature': 1.0,
-        'top_k': 10,
-        'top_p': 0.8,
-        'early_stop': True
-    }
-   
     generate_files = config['data']['generate_files'].split(',')
     scaffold = bool(eval(config['generate']['on_scaffold']))
     print("Generate on Scaffold: ", scaffold)
@@ -86,9 +101,6 @@ else:
     # in dataloader.py, class ChemGenerateDataRaw is created for data preprocess in generation
     # ChemDataRaw中输出的example是'scaffold.smiles!'，返回的是smiles
     generate_data = ChemGenerateDataRaw(generate_files)
-    
-    # print(generate_data.generate_data)
-
     # in dataloader.py, def get_generate_data_loader is created for data loader in generation
     # 这里dataloader中ChemDataSetPostProcess引入了scaffold的表示
     # scaffold表示要考虑分子没有骨架的问题
@@ -97,63 +109,66 @@ else:
                                                 int(config['generate']['batch_size']),
                                                 tokenizer,
                                                 int(config['model']['n_positions'])-1)
-    # print(generate_loader)
     
     for props, seqs, attn_mask in generate_loader:
         props = props.to(device)
         seqs = seqs.to(device)
         attn_mask = attn_mask.to(device)
-        # print(seqs.shape, props.shape)
-        print(seqs)
-        # print(seqs[0])
+
         x = None
         for i in range(seqs.size(1)):
-            # print(seqs[0, i])
             if seqs[0, i] != 68 and seqs[0, i+1] == 68:
                 x = seqs[0, :i+1] # 删除end token
                 break
 
-        # Print the value of x
-        print(x)
         if x != None:
             seqs = x.unsqueeze(0) # 删除end token
         
-        print("seqs length: ", seqs.size(1))
         seqs_in = seqs[:, :(seqs.size(1) >> 1)]
-        print(seqs_in.shape)
         len_in = seqs.size(1) >> 1
-        print(len_in)
-        half_generate = seqs.size(1) - len_in - 1# 待生成长度，取一半，奇数向上
-        generation_configs['max_gen_len'] = half_generate # n means n + 1
-        # out length = len_in + generation_configs['max_gen_len'] + 1
-        generation_configs['beam_size'] = 2
-
-        data = [props, seqs_in]
-        
+        len_out = len_in
+        generation_configs = {
+            'beam_size': 1,
+            'max_gen_len': 53,
+            'end_ids': 68, # 1能正常生成，但不知道效果如何；目前还没看generate中这个ids的作用
+            'pad_ids': 68,
+            'no_repeat_ngram_size': 1,
+            'do_sample': True,
+            'temperature': 0.5,
+            'top_k': 50,
+            'top_p': 0.8,
+            'early_stop': True
+        }
+        print(seqs_in.shape)
         print("#################Generating###############")
+        data = [props, seqs_in]
         out = model.generate(data, generation_configs=generation_configs)
-        print(out.shape)
-       
-        
         out = out[:, :, 1:].squeeze(0) # 删去首位相接的重复token1个, remains = 20
         out_concat = torch.empty(generation_configs['beam_size'], len_in + generation_configs['max_gen_len'] + 1, dtype=torch.long)
+        
         for i, seq in enumerate(out):
             s = torch.concat((seqs_in, seq.unsqueeze(0)), dim=1)
             out_concat[i] = s
-            
-        
-        print("#####################Contrast####################")
-        print('Seqs_all: ', seqs.shape, seqs)
-        print('Generated: ', out_concat.shape, out_concat)
-        '''print('Seqs_input: ', seqs_in.shape, seqs_in)
-        print('Seqs_output: ', out.shape, out)'''
-
+     
         print("################Decoding###############")
+        smiles_decoded = []
         for i, out in enumerate(out_concat):
-            print(tokenizer.decode(out.tolist()))
+            smiles_decoded.append(tokenizer.decode(out.tolist()))
+
         smiles_original = tokenizer.decode(seqs[0].tolist())
+        print("Original SMILES: ")
         print(smiles_original)
-        # DrawPlot(out_concat, seqs)
+        print("Decoded SMILES: ")
+        for s in smiles_decoded:
+            print(s, CheckValid(s))
+
+        
+        
+        # RuntimeError: The expanded size of the tensor (58) must match the existing size (55) at non-singleton dimension 0.  Target sizes: [58].  Tensor sizes: [55]
+        # to fix bug for long max_gen_len parameter
+        # to fix bug for decoding output like 'xxx.xxx>>xxx!'
+            
+            
         
         
 
