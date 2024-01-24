@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-
+import rdkit.Chem as Chem 
 
 def DrawPlot(out_concat_values, seqs_values):
         
@@ -14,3 +14,10 @@ def DrawPlot(out_concat_values, seqs_values):
     plt.xlabel('Index')
     plt.ylabel('Value')
     plt.savefig('cts.png')
+
+def CheckValid(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    if mol:
+        return True
+    else:
+        return False
