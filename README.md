@@ -16,8 +16,12 @@
 
 # to do 
 1. Parameters in generation_configs are to be set reasonable.
-2. More SMILES in file
+2. More SMILES in file 'generate.txt' to test
 3. Make the output correct. Now the generated SMILES are always made of too mant 'C's(CARBON TOKEN) and '(', ')' can't be matched grammatically correctly.
+4. Save parameters when training in 'nohup'
+5. Check the validation for generated SMILES.
+6. Train with smaller learning rate
+7. Set the name for saved model when training
 
 
 
