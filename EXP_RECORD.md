@@ -29,6 +29,16 @@
 
     # ids=68 / 1 结果一样
 
+# decode and validation
+      '''
+      Original SMILES: 
+      CC
+      Decoded SMILES: 
+      ClC(C(Cl)(Cl)Cl)=O.C(C)(C)NCC>>C(C)(C)N(CC)C(Cl)(Cl)Cl! False
+
+      'False' means this string is not correct
+      '''
+
 # BUGS 
       # （1）（已解决，问题（3）调教好了就可以直接放在cuda上了,n_positions测试到1024无报错）generate好像对n_positions很敏感，太大会报错
       # 在cuda上报错为RuntimeError: CUDA error: device-side assert triggered
